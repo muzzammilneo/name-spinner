@@ -1,0 +1,1545 @@
+/* ==========================================================================
+   NameRoll — Premium Arcade Slot-Machine Random Name Picker
+   Modern SaaS + Neon Arcade Aesthetic
+   ========================================================================== */
+
+:root {
+  /* Core Color System */
+  --bg-deep: #070913;
+  --bg-surface: #0e1326;
+  --bg-surface-elevated: #151c38;
+  --bg-surface-glass: rgba(16, 22, 44, 0.72);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-bright: rgba(255, 255, 255, 0.16);
+  --border-neon-cyan: rgba(0, 242, 254, 0.4);
+  --border-neon-purple: rgba(168, 85, 247, 0.4);
+
+  /* Brand Accents */
+  --cyan-primary: #00f2fe;
+  --cyan-glow: rgba(0, 242, 254, 0.35);
+  --cyan-dark: #00a8b5;
+  --purple-primary: #8b5cf6;
+  --purple-glow: rgba(139, 92, 246, 0.35);
+  --magenta-primary: #d946ef;
+  --magenta-glow: rgba(217, 70, 239, 0.35);
+  --gold-winner: #ffd700;
+  --gold-glow: rgba(255, 215, 0, 0.45);
+  --gold-dark: #b8860b;
+
+  /* Neutrals & Text */
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-dim: #475569;
+
+  /* Typography */
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Space Grotesk', sans-serif;
+
+  /* Shadows & Depth */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-neon-cyan: 0 0 25px rgba(0, 242, 254, 0.28);
+  --shadow-neon-purple: 0 0 25px rgba(139, 92, 246, 0.28);
+  --shadow-neon-gold: 0 0 35px rgba(255, 215, 0, 0.4);
+
+  /* Dimensions */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --max-width: 1200px;
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Background Atmosphere */
+.background-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ambient-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at 18% 22%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 82% 18%, rgba(0, 242, 254, 0.10) 0%, transparent 45%),
+    radial-gradient(circle at 50% 65%, rgba(217, 70, 239, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 100%, #070913 0%, transparent 100%);
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+}
+
+/* Main Container */
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-height: 100vh;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-icon-slot {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #1e2646 0%, #0e1429 100%);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-icon-slot::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+}
+
+.brand-icon-svg {
+  width: 24px;
+  height: 24px;
+  color: var(--cyan-primary);
+  filter: drop-shadow(0 0 6px var(--cyan-glow));
+}
+
+.brand-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 40%, var(--cyan-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.brand-tagline {
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Icon Buttons */
+.btn-icon-subtle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-glass);
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(12px);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.btn-icon-subtle:hover {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-glass-bright);
+  transform: translateY(-1px);
+}
+
+.btn-icon-subtle.active {
+  color: var(--cyan-primary);
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+
+/* Main Layout Grid */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .main-grid {
+    grid-template-columns: 1.25fr 1fr;
+    gap: 2.5rem;
+  }
+}
+
+/* Machine Column */
+.machine-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  width: 100%;
+}
+
+/* ==========================================================================
+   Arcade Slot Machine Component
+   ========================================================================== */
+
+.slot-machine-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  perspective: 1200px;
+}
+
+.slot-machine-chassis {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-xl);
+  /* Multi-tier metallic chassis bezel */
+  background: linear-gradient(145deg, #222c4a 0%, #11172a 45%, #080c18 100%);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  padding: 18px 22px;
+  box-shadow: 
+    0 24px 60px -10px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(0, 242, 254, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.7);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.slot-machine-chassis.is-rolling {
+  box-shadow: 
+    0 24px 60px -10px rgba(0, 0, 0, 0.9),
+    0 0 45px rgba(0, 242, 254, 0.35),
+    0 0 60px rgba(139, 92, 246, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  border-color: rgba(0, 242, 254, 0.45);
+}
+
+.slot-machine-chassis.has-winner {
+  box-shadow: 
+    0 24px 60px -10px rgba(0, 0, 0, 0.9),
+    0 0 55px rgba(255, 215, 0, 0.4),
+    0 0 85px rgba(217, 70, 239, 0.3),
+    inset 0 1px 2px rgba(255, 215, 0, 0.5);
+  border-color: rgba(255, 215, 0, 0.6);
+}
+
+/* Lock-in shake keyframes */
+@keyframes reelLockVibrate {
+  0% { transform: translateY(0); }
+  20% { transform: translateY(5px); }
+  40% { transform: translateY(-4px); }
+  60% { transform: translateY(3px); }
+  80% { transform: translateY(-1px); }
+  100% { transform: translateY(0); }
+}
+
+.reel-lock-shake {
+  animation: reelLockVibrate 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Machine Crown Header */
+.machine-crown {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.5rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0.85rem;
+}
+
+.crown-branding {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.crown-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cyan-primary);
+  box-shadow: 0 0 8px var(--cyan-primary);
+}
+
+.crown-status-pill {
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  transition: all 0.25s ease;
+}
+
+.slot-machine-chassis.is-rolling .crown-status-pill {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--cyan-primary);
+  color: var(--cyan-primary);
+  box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.slot-machine-chassis.has-winner .crown-status-pill {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: var(--gold-winner);
+  color: var(--gold-winner);
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+
+/* Machine Body Layout with Arcade Pillars */
+.machine-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+/* Arcade Side LED Pillars */
+.arcade-pillar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 2;
+}
+
+.led-node {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.slot-machine-chassis.is-rolling .arcade-pillar .led-node:nth-child(odd) {
+  animation: ledPulseCyan 0.4s infinite alternate;
+}
+.slot-machine-chassis.is-rolling .arcade-pillar .led-node:nth-child(even) {
+  animation: ledPulsePurple 0.4s infinite alternate 0.2s;
+}
+
+@keyframes ledPulseCyan {
+  0% { background: rgba(0, 242, 254, 0.2); box-shadow: none; }
+  100% { background: var(--cyan-primary); box-shadow: 0 0 8px var(--cyan-primary); }
+}
+
+@keyframes ledPulsePurple {
+  0% { background: rgba(217, 70, 239, 0.2); box-shadow: none; }
+  100% { background: var(--magenta-primary); box-shadow: 0 0 8px var(--magenta-primary); }
+}
+
+.slot-machine-chassis.has-winner .arcade-pillar .led-node {
+  background: var(--gold-winner);
+  box-shadow: 0 0 10px var(--gold-winner);
+}
+
+/* ==========================================================================
+   Slot Machine Inner Reel Viewport (3D Cylinder Illusion)
+   ========================================================================== */
+
+.reel-viewport-frame {
+  position: relative;
+  flex: 1;
+  background: #03050c;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  box-shadow: 
+    inset 0 0 40px rgba(0, 0, 0, 0.95),
+    inset 0 35px 35px -10px rgba(0, 0, 0, 0.95),
+    inset 0 -35px 35px -10px rgba(0, 0, 0, 0.95);
+  height: 276px; /* Dynamic via JS (92px * 3) */
+}
+
+/* Cylindrical Depth Gradient Vignette Overlays */
+.reel-vignette-top,
+.reel-vignette-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 75px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.reel-vignette-top {
+  top: 0;
+  background: linear-gradient(180deg, #03050c 0%, rgba(3, 5, 12, 0.85) 45%, transparent 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.reel-vignette-bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, #03050c 0%, rgba(3, 5, 12, 0.85) 45%, transparent 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Curved Lens Reflection Overlay */
+.reel-lens-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 12;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.01) 30%,
+    transparent 50%,
+    rgba(0, 242, 254, 0.02) 100%
+  );
+}
+
+/* ==========================================================================
+   Center Winning Focal Reticle / Target Window
+   ========================================================================== */
+
+.reel-center-target {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 92px; /* Set dynamically to center slot */
+  height: 92px;
+  pointer-events: none;
+  z-index: 8;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, rgba(0, 242, 254, 0.05) 0%, rgba(139, 92, 246, 0.06) 50%, rgba(0, 242, 254, 0.05) 100%);
+  border-top: 1.5px solid rgba(0, 242, 254, 0.4);
+  border-bottom: 1.5px solid rgba(0, 242, 254, 0.4);
+  box-shadow: 
+    0 0 25px rgba(0, 242, 254, 0.15),
+    inset 0 0 15px rgba(0, 242, 254, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* Glowing side indicator arrows / brackets */
+.target-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  filter: drop-shadow(0 0 6px var(--cyan-primary));
+  transition: border-color 0.3s ease;
+}
+
+.target-arrow-left {
+  left: -2px;
+  border-left: 9px solid var(--cyan-primary);
+}
+
+.target-arrow-right {
+  right: -2px;
+  border-right: 9px solid var(--cyan-primary);
+}
+
+/* Winner state for focal reticle */
+.slot-machine-chassis.has-winner .reel-center-target {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 215, 0, 0.18) 50%, rgba(255, 215, 0, 0.12) 100%);
+  border-top: 2px solid var(--gold-winner);
+  border-bottom: 2px solid var(--gold-winner);
+  box-shadow: 
+    0 0 35px rgba(255, 215, 0, 0.35),
+    inset 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.slot-machine-chassis.has-winner .target-arrow-left {
+  border-left-color: var(--gold-winner);
+  filter: drop-shadow(0 0 8px var(--gold-winner));
+}
+
+.slot-machine-chassis.has-winner .target-arrow-right {
+  border-right-color: var(--gold-winner);
+  filter: drop-shadow(0 0 8px var(--gold-winner));
+}
+
+/* ==========================================================================
+   Continuous Scrolling Reel Strip & Slots
+   ========================================================================== */
+
+.reel-strip {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  will-change: transform, filter;
+  transform: translate3d(0, 0, 0);
+}
+
+.reel-slot-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 1.5rem;
+  user-select: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.reel-slot-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.slot-name-text {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.slot-name-text.text-compact {
+  font-size: 1.45rem;
+}
+
+.slot-name-text.text-micro {
+  font-size: 1.15rem;
+}
+
+/* Winner slot highlight inside the reel */
+.winning-slot-highlight .slot-name-text {
+  font-size: 2.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 20%, #ffe066 60%, var(--gold-winner) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.6));
+  animation: winnerPulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes winnerPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5)); }
+  100% { transform: scale(1.05); filter: drop-shadow(0 0 22px rgba(255, 215, 0, 0.85)); }
+}
+
+/* Empty State Reel Illustration */
+.reel-empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  background: #04060f;
+  z-index: 15;
+}
+
+.empty-icon-ring {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.empty-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.empty-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 280px;
+  line-height: 1.4;
+}
+
+.empty-quick-add {
+  margin-top: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: 20px;
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  color: var(--cyan-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.empty-quick-add:hover {
+  background: rgba(0, 242, 254, 0.22);
+  border-color: var(--cyan-primary);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Primary ROLL Button
+   ========================================================================== */
+
+.roll-action-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.btn-roll {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  height: 68px;
+  border-radius: var(--radius-xl);
+  border: none;
+  background: linear-gradient(135deg, #00f2fe 0%, #4f46e5 50%, #9333ea 100%);
+  background-size: 200% 200%;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 
+    0 12px 30px -5px rgba(0, 242, 254, 0.45),
+    0 6px 18px -2px rgba(147, 51, 234, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.btn-roll::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn-roll:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 
+    0 16px 40px -5px rgba(0, 242, 254, 0.6),
+    0 8px 24px -2px rgba(147, 51, 234, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  background-position: 100% 0%;
+}
+
+.btn-roll:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.btn-roll:active:not(:disabled) {
+  transform: translateY(2px) scale(0.985);
+  box-shadow: 
+    0 6px 15px -3px rgba(0, 242, 254, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.btn-roll:disabled {
+  background: linear-gradient(135deg, #1e2640 0%, #151b30 100%);
+  color: var(--text-dim);
+  cursor: not-allowed;
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transform: none;
+}
+
+/* Rolling animation state on button */
+.btn-roll.is-rolling {
+  background: linear-gradient(270deg, #9333ea, #4f46e5, #00f2fe, #9333ea);
+  background-size: 300% 300%;
+  animation: gradientShift 2s ease infinite;
+  box-shadow: 0 0 30px rgba(0, 242, 254, 0.5);
+  cursor: wait;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.roll-shortcut-hint {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.kbd-badge {
+  padding: 0.15rem 0.45rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.725rem;
+  color: var(--text-secondary);
+}
+
+/* Spinner Icon */
+.roll-spinner-icon {
+  animation: spin 0.8s linear infinite;
+  display: none;
+}
+
+.btn-roll.is-rolling .roll-spinner-icon {
+  display: inline-block;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Winner Celebration Banner / Reveal Card
+   ========================================================================== */
+
+.winner-reveal-card {
+  width: 100%;
+  max-width: 580px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(217, 70, 239, 0.08) 50%, rgba(14, 19, 38, 0.95) 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.45);
+  backdrop-filter: blur(16px);
+  padding: 1.25rem 1.5rem;
+  box-shadow: 
+    0 16px 40px -10px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(255, 215, 0, 0.25);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  animation: revealSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.winner-reveal-card.show {
+  display: flex;
+}
+
+@keyframes revealSlideUp {
+  0% { opacity: 0; transform: translateY(16px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.winner-badge-pill {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #050811;
+  background: linear-gradient(90deg, #ffd700, #ffb700);
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.winner-name-display {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 40%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.15;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.winner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.35rem;
+}
+
+.btn-winner-action {
+  padding: 0.5rem 0.95rem;
+  border-radius: var(--radius-md);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-winner-action.btn-copy {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+}
+
+.btn-winner-action.btn-copy:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.btn-winner-action.btn-remove-winner {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fb7185;
+}
+
+.btn-winner-action.btn-remove-winner:hover {
+  background: rgba(244, 63, 94, 0.22);
+}
+
+.btn-winner-action.btn-roll-again {
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  color: var(--cyan-primary);
+}
+
+.btn-winner-action.btn-roll-again:hover {
+  background: rgba(0, 242, 254, 0.25);
+}
+
+/* ==========================================================================
+   Side Panel: Name Management ("Your Names")
+   ========================================================================== */
+
+.panel-card {
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.panel-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.names-count-badge {
+  font-size: 0.775rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  color: var(--cyan-primary);
+}
+
+.panel-tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Quick Action Toolbar */
+.names-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-tool {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.btn-tool:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.btn-tool.danger:hover {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.35);
+  color: #fb7185;
+}
+
+/* Presets Dropdown */
+.presets-dropdown-wrapper {
+  position: relative;
+}
+
+.presets-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 220px;
+  background: #0f162e;
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-md);
+  padding: 0.5rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.presets-menu.open {
+  display: flex;
+  animation: revealSlideUp 0.2s ease forwards;
+}
+
+.preset-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.825rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.15s ease;
+}
+
+.preset-item:hover {
+  background: rgba(0, 242, 254, 0.1);
+  color: var(--cyan-primary);
+}
+
+/* Bulk Input Textarea */
+.names-textarea-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.names-textarea {
+  width: 100%;
+  height: 210px;
+  background: #080c1a;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.names-textarea:focus {
+  outline: none;
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+}
+
+.names-textarea::placeholder {
+  color: var(--text-dim);
+}
+
+/* Interactive Chips View */
+.names-chips-container {
+  display: none;
+  max-height: 210px;
+  overflow-y: auto;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+  background: #080c1a;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+}
+
+.names-chips-container.active {
+  display: flex;
+}
+
+.name-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 20px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-size: 0.825rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.name-chip:hover {
+  border-color: rgba(0, 242, 254, 0.35);
+}
+
+.btn-chip-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-chip-delete:hover {
+  color: #fb7185;
+}
+
+/* Quick Add Single Row Input */
+.quick-add-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-quick-add {
+  flex: 1;
+  background: #080c1a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.85rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.input-quick-add:focus {
+  outline: none;
+  border-color: var(--cyan-primary);
+}
+
+.btn-quick-add {
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-quick-add:hover {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--cyan-primary);
+  color: var(--cyan-primary);
+}
+
+/* Duplicate warning flag */
+.duplicate-warning {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.775rem;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.duplicate-warning.show {
+  display: flex;
+}
+
+/* ==========================================================================
+   Recent Picks History
+   ========================================================================== */
+
+.history-card {
+  margin-top: 0.5rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.history-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.history-rank {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: var(--cyan-primary);
+  background: rgba(0, 242, 254, 0.1);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.history-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.history-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.history-empty-text {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+/* ==========================================================================
+   Settings Modal / Drawer
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 18, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-backdrop.open {
+  display: flex;
+  animation: modalFadeIn 0.2s ease forwards;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 440px;
+  background: #0f152d;
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: modalSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalSlide {
+  from { transform: scale(0.95) translateY(10px); }
+  to { transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.btn-close-modal:hover {
+  color: var(--text-primary);
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.setting-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.setting-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.setting-desc {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+}
+
+/* Custom Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.12);
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--cyan-primary);
+  box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* Segmented Buttons in Settings */
+.segmented-control {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.segment-btn {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.775rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.segment-btn.active {
+  background: var(--bg-surface-elevated);
+  color: var(--cyan-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 0.75rem 1.15rem;
+  border-radius: var(--radius-md);
+  background: #121933;
+  border: 1px solid var(--border-glass-bright);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: toastIn 0.25s ease forwards;
+  pointer-events: auto;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Responsive Overrides */
+@media (max-width: 640px) {
+  .app-container {
+    padding: 1rem 0.85rem 2.5rem;
+    gap: 1.5rem;
+  }
+
+  .brand-title {
+    font-size: 1.45rem;
+  }
+
+  .slot-machine-chassis {
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+  }
+
+  .machine-body {
+    gap: 6px;
+  }
+
+  .arcade-pillar {
+    padding: 6px 2px;
+    gap: 6px;
+  }
+
+  .led-node {
+    width: 6px;
+    height: 6px;
+  }
+
+  .btn-roll {
+    height: 60px;
+    font-size: 1.35rem;
+  }
+
+  .slot-name-text {
+    font-size: 1.5rem;
+  }
+
+  .winning-slot-highlight .slot-name-text {
+    font-size: 1.75rem;
+  }
+
+  .winner-name-display {
+    font-size: 1.85rem;
+  }
+}

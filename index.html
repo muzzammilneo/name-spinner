@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NameRoll — Modern Arcade Slot-Machine Name Picker</title>
+  <meta name="description"
+    content="A beautiful, modern random name picker inspired by the visual excitement and mechanical physics of a classic casino slot machine reel.">
+  <meta name="theme-color" content="#070913">
+
+  <!-- Modern Geometric Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- Background Ambience & Canvas -->
+  <canvas id="celebrationCanvas" class="background-canvas"></canvas>
+  <div class="ambient-layer"></div>
+  <div class="grid-overlay"></div>
+
+  <!-- Main Application Wrapper -->
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon-slot">
+          <!-- 3-bar reel stylized icon -->
+          <svg class="brand-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="18" rx="4"></rect>
+            <line x1="8" y1="3" x2="8" y2="21"></line>
+            <line x1="16" y1="3" x2="16" y2="21"></line>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+          </svg>
+        </div>
+        <div class="brand-text-group">
+          <h1 class="brand-title">NameRoll</h1>
+          <p class="brand-tagline">Pick a name. Let the roll decide.</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Sound Toggle -->
+        <button id="soundToggleBtn" class="btn-icon-subtle active" title="Toggle Sound Effects"
+          aria-label="Toggle Sound">
+          <svg id="soundOnIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="soundOffIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <!-- Settings Button -->
+        <button id="openSettingsBtn" class="btn-icon-subtle" title="Settings & Options" aria-label="Open Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Grid Content -->
+    <main class="main-grid">
+
+      <!-- Left / Center: Slot Machine Viewport & Roll Controls -->
+      <section class="machine-column" aria-label="Slot Machine Selection Area">
+
+        <div class="slot-machine-wrapper">
+          <!-- Main Chassis -->
+          <div id="slotMachineChassis" class="slot-machine-chassis">
+
+            <!-- Machine Top Bar -->
+            <div class="machine-crown">
+              <div class="crown-branding">
+                <span class="crown-dot"></span>
+                <span>ROLLER SYSTEM 01</span>
+              </div>
+              <div id="machineStatusPill" class="crown-status-pill">READY</div>
+            </div>
+
+            <!-- Machine Body with Arcade Light Pillars -->
+            <div class="machine-body">
+
+              <!-- Left Arcade Light Pillar -->
+              <div class="arcade-pillar">
+                <span class="led-node"></span>
+                <span class="led-node"></span>
+                <span class="led-node"></span>
+                <span class="led-node"></span>
+                <span class="led-node"></span>
+              </div>
+
+              <!-- Central 3D Reel Viewport Frame -->
+              <div id="reelViewport" class="reel-viewport-frame">
+
+                <!-- 3D Cylindrical Vignettes -->
+                <div class="reel-vignette-top"></div>
+                <div class="reel-vignette-bottom"></div>
+                <div class="reel-lens-sheen"></div>
+
+                <!-- Center Focus Alignment Reticle -->
+                <div id="reelCenterTarget" class="reel-center-target">
+                  <div class="target-arrow target-arrow-left"></div>
+                  <div class="target-arrow target-arrow-right"></div>
+                </div>
+
+                <!-- Empty State Overlay (Visible when names < 2) -->
+                <div id="reelEmptyState" class="reel-empty-state" style="display: none;">
+                  <div class="empty-icon-ring">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="8" y1="6" x2="21" y2="6"></line>
+                      <line x1="8" y1="12" x2="21" y2="12"></line>
+                      <line x1="8" y1="18" x2="21" y2="18"></line>
+                      <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                      <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                      <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                  </div>
+                  <div class="empty-title">Ready to roll?</div>
+                  <p class="empty-desc">Add at least two names to spin the slot reel and pick a winner.</p>
+                  <button id="emptySampleBtn" class="empty-quick-add">+ Load Sample Names</button>
+                </div>
+
+                <!-- Dynamically scrolled names container -->
+                <div id="reelStrip" class="reel-strip"></div>
+              </div>
+
+              <!-- Right Arcade Light Pillar -->
+              <div class="arcade-pillar">
+                <span class="led-node"></span>
+                <span class="led-node"></span>
+                <span class="led-node"></span>
+                <span class="led-node"></span>
+                <span class="led-node"></span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Action Area -->
+        <div class="roll-action-area">
+          <button id="rollBtn" class="btn-roll" title="Press to roll or hit Spacebar">
+            <!-- Spinner for rolling state -->
+            <svg class="roll-spinner-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+              <path d="M12 2a10 10 0 0 1 10 10"></path>
+            </svg>
+            <span id="rollBtnText">ROLL</span>
+          </button>
+
+          <div class="roll-shortcut-hint">
+            <span>Press <kbd class="kbd-badge">Space</kbd> or <kbd class="kbd-badge">Enter</kbd> to roll</span>
+          </div>
+        </div>
+
+        <!-- Winner Reveal Banner Card -->
+        <div id="winnerRevealCard" class="winner-reveal-card" role="region" aria-live="polite">
+          <div class="winner-badge-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+            <span>SELECTED!</span>
+          </div>
+
+          <div id="winnerNameDisplay" class="winner-name-display">MUZAMMIL</div>
+
+          <div class="winner-actions">
+            <button id="copyWinnerBtn" class="btn-winner-action btn-copy" title="Copy to clipboard">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+            <button id="removeWinnerBtn" class="btn-winner-action btn-remove-winner"
+              title="Remove name from current list">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span>Remove from List</span>
+            </button>
+            <button id="rollAgainBtn" class="btn-winner-action btn-roll-again" title="Spin again">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+              </svg>
+              <span>Roll Again</span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right: Name Management & History -->
+      <aside class="side-column" aria-label="Names and History Configuration">
+
+        <!-- "Your Names" Panel -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">Your Names</h2>
+              <span id="namesCountBadge" class="names-count-badge">0 names</span>
+            </div>
+
+            <!-- View Switcher (Textarea vs Interactive Chips) -->
+            <div class="panel-tabs">
+              <button id="tabTextarea" class="tab-btn active" title="Bulk text editor">Text</button>
+              <button id="tabChips" class="tab-btn" title="Individual chips">Chips</button>
+            </div>
+          </div>
+
+          <!-- Quick Action Toolbar -->
+          <div class="names-toolbar">
+            <!-- Presets Dropdown Wrapper -->
+            <div class="presets-dropdown-wrapper">
+              <button id="presetsBtn" class="btn-tool" title="Load sample lists">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <span>Presets</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              <div id="presetsMenu" class="presets-menu">
+                <button class="preset-item" data-preset="friends">👨‍👩‍👧‍👦 Friends</button>
+                <button class="preset-item" data-preset="standup">🚀 Team Standup</button>
+                <button class="preset-item" data-preset="classroom">🎓 Classroom Call</button>
+                <button class="preset-item" data-preset="secretSanta">🎁 Secret Santa</button>
+                <button class="preset-item" data-preset="lunch">🍕 Lunch Picker</button>
+                <button class="preset-item" data-preset="giveaway">🎉 Lucky Giveaway</button>
+              </div>
+            </div>
+
+            <button id="shuffleBtn" class="btn-tool" title="Shuffle names order">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="21 16 21 21 16 21"></polyline>
+                <line x1="15" y1="15" x2="21" y2="21"></line>
+                <line x1="4" y1="4" x2="9" y2="9"></line>
+              </svg>
+              <span>Shuffle</span>
+            </button>
+
+            <button id="sortBtn" class="btn-tool" title="Sort names alphabetically">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="15" y2="6"></line>
+                <line x1="3" y1="12" x2="11" y2="12"></line>
+                <line x1="3" y1="18" x2="7" y2="18"></line>
+                <polyline points="18 15 21 18 24 15"></polyline>
+                <line x1="21" y1="9" x2="21" y2="18"></line>
+              </svg>
+              <span>Sort</span>
+            </button>
+
+            <button id="clearAllBtn" class="btn-tool danger" title="Clear all names">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span>Clear</span>
+            </button>
+          </div>
+
+          <!-- Textarea Bulk Mode -->
+          <div id="textareaWrapper" class="names-textarea-wrapper">
+            <textarea id="namesTextarea" class="names-textarea"
+              placeholder="Enter one name per line...&#10;&#10;Aisha Khan&#10;Rahul Sharma&#10;Sarah Ali&#10;Daniel Joseph&#10;Muzammil"
+              spellcheck="false"></textarea>
+          </div>
+
+          <!-- Interactive Chips View -->
+          <div id="namesChipsContainer" class="names-chips-container"></div>
+
+          <!-- Quick Single Name Addition Row -->
+          <form id="quickAddForm" class="quick-add-form">
+            <input type="text" id="quickAddInput" class="input-quick-add" placeholder="Quick add single name..."
+              autocomplete="off">
+            <button type="submit" class="btn-quick-add">+ Add</button>
+          </form>
+
+          <!-- Duplicate warning alert -->
+          <div id="duplicateWarning" class="duplicate-warning">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span id="duplicateWarningText">Duplicate names detected in list</span>
+          </div>
+
+        </div>
+
+        <!-- Recent Picks History Card -->
+        <div class="panel-card history-card">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">Recent Picks</h2>
+              <span id="historyCountBadge" class="names-count-badge">0</span>
+            </div>
+            <button id="clearHistoryBtn" class="btn-tool danger" title="Clear history">
+              <span>Clear History</span>
+            </button>
+          </div>
+
+          <div id="historyList" class="history-list">
+            <div class="history-empty-text">No picks yet. Roll the reel to make your first pick!</div>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+  </div>
+
+  <!-- Settings Modal Dialog -->
+  <div id="settingsModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle" class="modal-title">Roll Settings</h3>
+        <button id="closeSettingsBtn" class="btn-close-modal" aria-label="Close settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="settings-group">
+        <!-- Sound Effects -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Sound Effects</span>
+            <span class="setting-desc">Mechanical reel clicks and victory fanfare</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="modalSoundToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Animation Duration -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Animation Duration</span>
+            <span class="setting-desc">Control spin physics and deceleration</span>
+          </div>
+          <div class="segmented-control" id="speedSegmented">
+            <button class="segment-btn" data-speed="2200">Fast (2s)</button>
+            <button class="segment-btn active" data-speed="3500">Normal (3.5s)</button>
+            <button class="segment-btn" data-speed="5000">Dramatic (5s)</button>
+          </div>
+        </div>
+
+        <!-- Visible Rows -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Visible Reel Rows</span>
+            <span class="setting-desc">Number of names visible on reel viewport</span>
+          </div>
+          <div class="segmented-control" id="rowsSegmented">
+            <button class="segment-btn active" data-rows="3">3 Rows</button>
+            <button class="segment-btn" data-rows="5">5 Rows</button>
+          </div>
+        </div>
+
+        <!-- Remove Selected Name After Rolling -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Remove Picked Name</span>
+            <span class="setting-desc">Automatically remove winner from the list</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="autoRemoveToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Allow Duplicates -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Allow Duplicates</span>
+            <span class="setting-desc">Keep duplicate names in the selection pool</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="allowDuplicatesToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Application Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/reel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
